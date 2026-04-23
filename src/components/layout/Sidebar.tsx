@@ -23,6 +23,7 @@ const Sidebar = () => {
   const menuItems = [
     { icon: <LayoutDashboard size={22} />, label: 'Dashboard', href: '/dashboard' },
     { icon: <FileText size={22} />, label: 'Quiz Management', href: '/dashboard/quiz' },
+    { icon: <LayoutDashboard size={22} />, label: 'Online Quiz', href: '/dashboard/online-quiz' },
     { icon: <ClipboardList size={22} />, label: 'Pretest', href: '/dashboard/pretest' },
     { icon: <Users size={22} />, label: 'Users', href: '/dashboard/users' },
     { icon: <Settings size={22} />, label: 'Settings', href: '/dashboard/settings' },

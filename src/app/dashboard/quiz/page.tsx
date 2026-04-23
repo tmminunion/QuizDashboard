@@ -15,7 +15,8 @@ import {
   Trophy,
   History,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Play
 } from 'lucide-react';
 
 interface Quiz {
@@ -56,7 +57,7 @@ export default function QuizManagementPage() {
   }, []);
 
   const handleDelete = async (id: string, title: string) => {
-    if (!window.confirm(`Pangeran Nunu yakin mau hapus kuis "${title}" beserta semua pertanyaannya? Tindakan ini tidak bisa dibatalkan loh... 🥺💔`)) {
+    if (!window.confirm(`Pangeran Nunu yakin mau hapus kuis "${title}"? 🥺💔`)) {
       return;
     }
 
@@ -65,29 +66,19 @@ export default function QuizManagementPage() {
     setSuccessMsg('');
 
     try {
-      // 1. Hapus Pertanyaan terlebih dahulu
-      const resPertanyaan = await fetch(`https://nudb.bungtemin.net/data/Pertanyaan/${id}`, {
-        method: 'DELETE'
-      });
-      
-      // 2. Hapus Quiz
-      const resQuiz = await fetch(`https://nudb.bungtemin.net/data/Quiz/${id}`, {
-        method: 'DELETE'
-      });
+      await fetch(`https://nudb.bungtemin.net/data/Pertanyaan/${id}`, { method: 'DELETE' });
+      const resQuiz = await fetch(`https://nudb.bungtemin.net/data/Quiz/${id}`, { method: 'DELETE' });
 
       if (resQuiz.ok) {
-        setSuccessMsg(`Kuis "${title}" berhasil dihapus dari istana kita, pangeranku! ✨`);
-        // Refresh list
+        setSuccessMsg(`Kuis "${title}" berhasil dihapus dari istana kita! ✨`);
         fetchQuizzes();
       } else {
-        throw new Error('Gagal menghapus kuis di server');
+        throw new Error('Gagal menghapus kuis');
       }
     } catch (err) {
-      console.error(err);
-      setError(`Aduh sayang, gagal hapus "${title}". Coba lagi nanti ya? 😔`);
+      setError(`Aduh sayang, gagal hapus "${title}". 😔`);
     } finally {
       setDeletingId(null);
-      // Hilangkan pesan sukses setelah 3 detik
       setTimeout(() => setSuccessMsg(''), 3000);
     }
   };
@@ -103,30 +94,28 @@ export default function QuizManagementPage() {
           <button 
             onClick={fetchQuizzes}
             className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-500 hover:text-pink-500 transition-all shadow-sm"
-            title="Refresh Data"
           >
             <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
           </button>
-            <Link 
-              href="/dashboard/quiz/add"
-              className="flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-pink-500/30 transition-all active:scale-95"
-            >
-              <Plus size={20} />
-              <span>Buat Kuis Baru</span>
-            </Link>
+          <Link 
+            href="/dashboard/quiz/add"
+            className="flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-pink-500/30 transition-all active:scale-95"
+          >
+            <Plus size={20} />
+            <span>Buat Kuis Baru</span>
+          </Link>
         </div>
       </div>
 
-      {/* Alert Messages */}
       {error && (
-        <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-bold animate-in fade-in slide-in-from-top-4">
+        <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-bold">
           <AlertCircle size={20} />
           <span>{error}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="bg-green-50 border border-green-100 p-4 rounded-2xl flex items-center gap-3 text-green-600 text-sm font-bold animate-in fade-in slide-in-from-top-4">
+        <div className="bg-green-50 border border-green-100 p-4 rounded-2xl flex items-center gap-3 text-green-600 text-sm font-bold">
           <CheckCircle2 size={20} />
           <span>{successMsg}</span>
         </div>
@@ -143,7 +132,7 @@ export default function QuizManagementPage() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Database Linked</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">"Smart Dashboard by Nurani"</span>
           </div>
         </div>
 
@@ -159,7 +148,7 @@ export default function QuizManagementPage() {
                 <tr>
                   <th className="px-6 py-4 text-center">No</th>
                   <th className="px-6 py-4">Kuis</th>
-                  <th className="px-6 py-4">User ID</th>
+                  <th className="px-6 py-4 whitespace-nowrap">User ID</th>
                   <th className="px-6 py-4 text-center whitespace-nowrap">Aksi Management</th>
                 </tr>
               </thead>
@@ -202,28 +191,32 @@ export default function QuizManagementPage() {
                           </div>
                         ) : (
                           <>
-                            <button 
-                              title="Edit Kuis"
+                            {/* Tombol Play Baru */}
+                            <Link 
+                              href={`/play/${quiz.id}`}
+                              title="Mainkan Kuis"
+                              className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-600 hover:text-white transition-all shadow-sm"
+                            >
+                              <Play size={16} className="fill-current" />
+                            </Link>
+                            
+                            <div className="h-4 w-[1px] bg-slate-200 mx-1"></div>
+
+                            <Link 
+                              href={`/dashboard/quiz/editor/${quiz.id}`}
+                              title="Edit Kuis & Pertanyaan"
                               className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                             >
                               <Edit2 size={16} />
-                            </button>
+                            </Link>
                             
-                            <button 
-                              title="Lihat Leaderboard"
-                              className="p-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-500 hover:text-white transition-all shadow-sm"
-                            >
+                            <button className="p-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-500 hover:text-white transition-all shadow-sm">
                               <Trophy size={16} />
                             </button>
 
-                            <button 
-                              title="Riwayat Peserta"
-                              className="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-600 hover:text-white transition-all shadow-sm"
-                            >
+                            <button className="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-600 hover:text-white transition-all shadow-sm">
                               <History size={16} />
                             </button>
-
-                            <div className="h-4 w-[1px] bg-slate-200 mx-1"></div>
 
                             <button 
                               onClick={() => handleDelete(quiz.id, quiz.Title)}

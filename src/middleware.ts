@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const userCookie = request.cookies.get('quizdash_user');
   const url = request.nextUrl.clone();
 
-  // 1. Jika mencoba akses dashboard tapi belum login
+  // 1. Jika mencoba akses dashboard (admin) tapi belum login
   if (url.pathname.startsWith('/dashboard') && !userCookie) {
     url.pathname = '/login';
     return NextResponse.redirect(url);
@@ -17,9 +17,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 3. Jika buka root (/)
-  if (url.pathname === '/') {
-    url.pathname = userCookie ? '/dashboard' : '/login';
+  // 3. Jika buka root (/) dan sudah login, arahkan ke /dashboard
+  //    Jika belum login, biarkan di / (ini nanti akan jadi user dashboard)
+  if (url.pathname === '/' && userCookie) {
+    url.pathname = '/dashboard';
     return NextResponse.redirect(url);
   }
 
@@ -28,13 +29,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)', // Match semua kecuali API, static, image, favicon
   ],
 };
