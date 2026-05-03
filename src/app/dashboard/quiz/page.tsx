@@ -39,7 +39,7 @@ export default function QuizManagementPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('https://nudb.bungtemin.net/data/Quiz');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Quiz`);
       if (!response.ok) throw new Error('Gagal mengambil data dari API');
       const data = await response.json();
       const quizList = data.value || [];
@@ -66,8 +66,8 @@ export default function QuizManagementPage() {
     setSuccessMsg('');
 
     try {
-      await fetch(`https://nudb.bungtemin.net/data/Pertanyaan/${id}`, { method: 'DELETE' });
-      const resQuiz = await fetch(`https://nudb.bungtemin.net/data/Quiz/${id}`, { method: 'DELETE' });
+      await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Pertanyaan/${id}`, { method: 'DELETE' });
+      const resQuiz = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Quiz/${id}`, { method: 'DELETE' });
 
       if (resQuiz.ok) {
         setSuccessMsg(`Kuis "${title}" berhasil dihapus dari istana kita! ✨`);

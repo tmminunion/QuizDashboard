@@ -23,7 +23,7 @@ export default function PlayLobbyPage() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const res = await fetch(`https://nudb.bungtemin.net/data/Quiz/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Quiz/${id}`);
         if (res.ok) {
           const data = await res.json();
           setQuizInfo(data);

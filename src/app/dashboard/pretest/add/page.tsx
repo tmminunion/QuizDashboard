@@ -39,7 +39,7 @@ const idna = generateId();
 
     try {
       const response = await fetch(
-        "https://nudb.bungtemin.net/data/Pretest/" + idna,
+        process.env.NEXT_PUBLIC_DATA_API + "/Pretest/" + idna,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -44,14 +44,14 @@ export default function PretestEditorPage() {
     setError('');
     try {
       // 1. Info Pretest Utama
-      const resPt = await fetch(`https://nudb.bungtemin.net/data/Pretest/${id}`);
+      const resPt = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Pretest/${id}`);
       if (resPt.ok) {
         const data = await resPt.json();
         setPtInfo(data);
       }
 
       // 2. Info Pertanyaan (Asumsi format sama dengan Quiz)
-      const resQuestions = await fetch(`https://nudb.bungtemin.net/data/PertanyaanPretest/${id}`);
+      const resQuestions = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/PertanyaanPretest/${id}`);
       if (resQuestions.ok) {
         const data = await resQuestions.json();
         const existingQuestions = data?.value?.questions || [];
@@ -128,7 +128,7 @@ export default function PretestEditorPage() {
        
       };
 
-      const response = await fetch(`https://nudb.bungtemin.net/data/PertanyaanPretest/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/PertanyaanPretest/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

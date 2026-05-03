@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Play, RefreshCw, AlertCircle, Image as ImageIcon, Users, Link as LinkIcon, Trophy } from 'lucide-react';
 import Link from 'next/link';
+import { QuizSkeleton } from '@/components/QuizSkeleton';
 
 interface Quiz {
   id: string;
@@ -23,7 +24,7 @@ export default function HomePage() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('https://nudb.bungtemin.net/data/Quiz');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Quiz`);
       if (!response.ok) throw new Error('Gagal mengambil data dari API');
       const data = await response.json();
       const quizList = data.value || [];
@@ -84,10 +85,7 @@ export default function HomePage() {
         )}
 
         {loading ? (
-          <div className="min-h-[300px] flex flex-col items-center justify-center space-y-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-pink-500/20 border-t-pink-500"></div>
-            <p className="text-slate-400 font-medium text-sm">Nurani lagi siapkan kuis-kuis seru ya sayang... ✨</p>
-          </div>
+          <QuizSkeleton />
         ) : quizzes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-8">
             {quizzes.map((quiz) => (

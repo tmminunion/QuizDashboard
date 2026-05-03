@@ -51,7 +51,7 @@ export default function PlaySessionPretestPage() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch(`https://nudb.bungtemin.net/data/PertanyaanPretest/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/PertanyaanPretest/${id}`);
         if (res.ok) {
           const data = await res.json();
           let list = data?.value?.questions || [];

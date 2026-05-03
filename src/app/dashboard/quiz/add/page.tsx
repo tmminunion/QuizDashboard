@@ -48,7 +48,7 @@ export default function QuizAddPage() {
 
     try {
       const response = await fetch(
-        "https://nudb.bungtemin.net/data/Quiz/" + idna,
+        process.env.NEXT_PUBLIC_DATA_API + "/Quiz/" + idna,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

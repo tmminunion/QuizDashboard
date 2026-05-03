@@ -39,7 +39,7 @@ export default function PretestManagementPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('https://nudb.bungtemin.net/data/Pretest');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Pretest`);
       if (!response.ok) throw new Error('Gagal mengambil data dari API');
       const data = await response.json();
       const list = data.value || [];
@@ -67,10 +67,8 @@ export default function PretestManagementPage() {
 
     try {
       // Hapus Detail (Asumsi endpoint sama dengan quiz)
-      await fetch(`https://nudb.bungtemin.net/data/PertanyaanPretest/${id}`, { method: 'DELETE' });
-      
-      // Hapus Utama
-      const res = await fetch(`https://nudb.bungtemin.net/data/Pretest/${id}`, { method: 'DELETE' });
+      await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/PertanyaanPretest/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Pretest/${id}`, { method: 'DELETE' });
 
       if (res.ok) {
         setSuccessMsg(`Pretest "${title}" berhasil dihapus, pangeranku! ✨`);

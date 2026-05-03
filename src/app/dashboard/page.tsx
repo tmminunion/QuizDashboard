@@ -36,8 +36,8 @@ export default function DashboardPage() {
     setError('');
     try {
       const [quizRes, pretestRes] = await Promise.all([
-        fetch('https://nudb.bungtemin.net/data/Quiz'),
-        fetch('https://nudb.bungtemin.net/data/Pretest'),
+        fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Quiz`),
+        fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Pretest`),
       ]);
 
       if (!quizRes.ok) throw new Error('Gagal mengambil data Quiz');

@@ -52,7 +52,7 @@ export default function PlaySessionPage() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch(`https://nudb.bungtemin.net/data/Pertanyaan/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Pertanyaan/${id}`);
         if (res.ok) {
           const data = await res.json();
           let list = data?.value?.questions || [];
@@ -90,6 +90,23 @@ export default function PlaySessionPage() {
 
     return () => clearInterval(timer);
   }, [timeLeft, isFinished, loading, showFeedback]);
+
+  // Add keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isFinished || loading || showFeedback || questions.length === 0 || selectedOption !== null) return;
+      
+      const key = e.key.toUpperCase();
+      const optionsMap: Record<string, number> = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
+      
+      if (optionsMap[key] !== undefined && optionsMap[key] < questions[currentIndex].options.length) {
+        handleAnswer(optionsMap[key]);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, questions, selectedOption, showFeedback, isFinished, loading]);
 
   const handleAnswer = (optionIndex: number | null, isTimeout = false) => {
     if (selectedOption !== null || showFeedback) return;
@@ -131,9 +148,18 @@ export default function PlaySessionPage() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center gap-6">
-        <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-400 font-black tracking-widest uppercase animate-pulse">Syncing Arena...</p>
+      <div className="fixed inset-0 bg-[#f8fafc] z-[100] flex flex-col items-center justify-center gap-8">
+        <div className="relative">
+          <div className="w-24 h-24 border-4 border-pink-100 rounded-3xl rotate-45 animate-pulse"></div>
+          <div className="absolute inset-0 w-24 h-24 border-t-4 border-pink-500 rounded-3xl rotate-45 animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center -rotate-45">
+            <Zap className="text-pink-500 fill-pink-500 animate-bounce" size={32} />
+          </div>
+        </div>
+        <div className="text-center space-y-2">
+          <p className="text-slate-800 font-black tracking-[0.2em] uppercase text-sm">Synchronizing Arena</p>
+          <p className="text-slate-400 text-xs font-bold italic animate-pulse">"Nurani is preparing your challenge..."</p>
+        </div>
       </div>
     );
   }

@@ -44,7 +44,7 @@ export default function QuizEditorPage() {
     setError("");
     try {
       // 1. Info Quiz
-      const resQuiz = await fetch(`https://nudb.bungtemin.net/data/Quiz/${id}`);
+      const resQuiz = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Quiz/${id}`);
       if (resQuiz.ok) {
         const data = await resQuiz.json();
         setQuizInfo(data);
@@ -52,7 +52,7 @@ export default function QuizEditorPage() {
 
       // 2. Info Pertanyaan (Format Baru: { value: { questions: [...] } })
       const resQuestions = await fetch(
-        `https://nudb.bungtemin.net/data/Pertanyaan/${id}`,
+        `${process.env.NEXT_PUBLIC_DATA_API}/Pertanyaan/${id}`,
       );
       if (resQuestions.ok) {
         const data = await resQuestions.json();
@@ -132,7 +132,7 @@ export default function QuizEditorPage() {
       };
 
       const response = await fetch(
-        `https://nudb.bungtemin.net/data/Pertanyaan/${id}`,
+        `${process.env.NEXT_PUBLIC_DATA_API}/Pertanyaan/${id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

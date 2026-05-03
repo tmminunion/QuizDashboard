@@ -24,7 +24,7 @@ export default function PlayLobbyPretestPage() {
   useEffect(() => {
     const fetchPretest = async () => {
       try {
-        const res = await fetch(`https://nudb.bungtemin.net/data/Pretest/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Pretest/${id}`);
         if (res.ok) {
           const data = await res.json();
           setPretestInfo(data);
