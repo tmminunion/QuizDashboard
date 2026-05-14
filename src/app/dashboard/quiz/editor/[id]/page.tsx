@@ -38,6 +38,7 @@ export default function QuizEditorPage() {
 
   const [quizInfo, setQuizInfo] = useState<any>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [activeQIndex, setActiveQIndex] = useState(0);
 
   const fetchData = async () => {
     setLoading(true);
@@ -59,6 +60,7 @@ export default function QuizEditorPage() {
         // Sesuai contoh: data.value.questions
         const existingQuestions = data?.value?.questions || [];
         setQuestions(existingQuestions);
+        if (existingQuestions.length > 0) setActiveQIndex(0);
       }
     } catch (err) {
       console.error("Fetch Error:", err);
@@ -85,6 +87,7 @@ export default function QuizEditorPage() {
     };
     // Tambahkan di urutan pertama (paling atas)
     setQuestions([newQ, ...questions]);
+    setActiveQIndex(0);
   };
 
   const handleQuestionChange = (qIndex: number, field: string, value: any) => {
@@ -112,6 +115,9 @@ export default function QuizEditorPage() {
   const removeQuestion = (qIndex: number) => {
     const updated = questions.filter((_, i) => i !== qIndex);
     setQuestions(updated);
+    if (activeQIndex >= updated.length) {
+      setActiveQIndex(Math.max(0, updated.length - 1));
+    }
   };
 
   const saveAll = async () => {
@@ -168,106 +174,108 @@ export default function QuizEditorPage() {
   }
 
   return (
-    <div className='max-w-5xl mx-auto space-y-8 pb-20 animate-in fade-in duration-500'>
-      {/* Header */}
-      <div className='flex flex-col md:flex-row md:items-center justify-between gap-6'>
-        <div className='flex items-center gap-4'>
-          <Link
-            href='/dashboard/quiz'
-            className='p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-pink-500 transition-all shadow-sm'
-          >
-            <ArrowLeft size={20} />
-          </Link>
-          <div>
-            <h1 className='text-3xl font-black text-slate-800 tracking-tight italic'>
-              QUIZ EDITOR PRO 🚀
-            </h1>
-            <p className='text-pink-500 font-bold text-sm'>
-              Target: {quizInfo?.Title || id}
-            </p>
-          </div>
-        </div>
-
-        <div className='flex gap-3'>
-          <button
-            onClick={addQuestion}
-            className='flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-6 py-4 rounded-2xl font-bold transition-all shadow-lg active:scale-95'
-          >
-            <Plus size={20} />
-            <span>Tambah Soal</span>
-          </button>
-          <button
-            onClick={saveAll}
-            disabled={saving}
-            className='flex-1 md:flex-none flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-lg shadow-pink-500/20 active:scale-95 disabled:opacity-50'
-          >
-            {saving ? (
-              <Loader2 className='animate-spin' size={20} />
-            ) : (
-              <Save size={20} />
-            )}
-            <span>Simpan Semua</span>
-          </button>
-        </div>
-      </div>
-
-      {error && (
-        <div className='bg-red-50 border-l-4 border-red-500 p-5 rounded-2xl flex items-center gap-4 text-red-700 text-sm font-bold shadow-sm'>
-          <AlertCircle size={24} />
-          <span>{error}</span>
-        </div>
-      )}
-      {success && (
-        <div className='bg-green-50 border-l-4 border-green-500 p-5 rounded-2xl flex items-center gap-4 text-green-700 text-sm font-bold shadow-sm'>
-          <CheckCircle2 size={24} />
-          <span>{success}</span>
-        </div>
-      )}
-
-      {/* Questions List */}
-      <div className='space-y-10'>
-        {questions.length === 0 ? (
-          <div className='bg-white p-24 rounded-[3rem] border-2 border-dashed border-slate-200 text-center space-y-5 shadow-inner'>
-            <div className='inline-flex p-8 bg-slate-50 rounded-full text-slate-200'>
-              <LayoutList size={64} />
-            </div>
-            <h3 className='text-2xl font-bold text-slate-400 tracking-tight uppercase'>
-              Database is Empty, Pangeran!
-            </h3>
-          </div>
-        ) : (
-          questions.map((q, qIndex) => (
-            <div
-              key={qIndex}
-              className='bg-white rounded-[3rem] border border-slate-200 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-pink-500/5 transition-all overflow-hidden animate-in slide-in-from-bottom-6 duration-500'
+    <div className='max-w-4xl mx-auto pb-12 animate-in fade-in duration-500 space-y-6'>
+      <div className="w-full space-y-6 min-w-0">
+        {/* Header */}
+        <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
+          <div className='flex items-center gap-3'>
+            <Link
+              href='/dashboard/quiz'
+              className='p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-pink-500 transition-all shadow-sm'
             >
-              <div className='bg-slate-900 px-10 py-6 flex items-center justify-between'>
-                <div className='flex items-center gap-5'>
-                  <div className='w-12 h-12 rounded-2xl bg-pink-500 text-white text-lg font-black flex items-center justify-center shadow-lg shadow-pink-500/20 transform -rotate-3'>
+              <ArrowLeft size={18} />
+            </Link>
+            <div>
+              <h1 className='text-xl md:text-2xl font-black text-slate-800 tracking-tight italic'>
+                QUIZ EDITOR PRO 🚀
+              </h1>
+              <p className='text-pink-500 font-bold text-xs'>
+                Target: {quizInfo?.Title || id}
+              </p>
+            </div>
+          </div>
+
+          <div className='flex gap-2'>
+            <button
+              onClick={addQuestion}
+              className='flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-bold transition-all shadow-md active:scale-95 text-sm'
+            >
+              <Plus size={18} />
+              <span>Tambah Soal</span>
+            </button>
+            <button
+              onClick={saveAll}
+              disabled={saving}
+              className='flex-1 md:flex-none flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-5 py-2.5 rounded-xl font-black transition-all shadow-md shadow-pink-500/20 active:scale-95 disabled:opacity-50 text-sm'
+            >
+              {saving ? (
+                <Loader2 className='animate-spin' size={18} />
+              ) : (
+                <Save size={18} />
+              )}
+              <span>Simpan Semua</span>
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <div className='bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-center gap-3 text-red-700 text-sm font-bold shadow-sm'>
+            <AlertCircle size={20} />
+            <span>{error}</span>
+          </div>
+        )}
+        {success && (
+          <div className='bg-green-50 border-l-4 border-green-500 p-4 rounded-xl flex items-center gap-3 text-green-700 text-sm font-bold shadow-sm'>
+            <CheckCircle2 size={20} />
+            <span>{success}</span>
+          </div>
+        )}
+
+        {/* Questions List */}
+        <div className='space-y-6'>
+          {questions.length === 0 ? (
+            <div className='bg-white p-12 md:p-16 rounded-3xl border-2 border-dashed border-slate-200 text-center space-y-4 shadow-inner'>
+              <div className='inline-flex p-6 bg-slate-50 rounded-full text-slate-200'>
+                <LayoutList size={48} />
+              </div>
+              <h3 className='text-xl font-bold text-slate-400 tracking-tight uppercase'>
+                Database is Empty, Pangeran!
+              </h3>
+            </div>
+          ) : (
+            questions.map((q, qIndex) => (
+              <div
+                key={qIndex}
+                id={`question-${qIndex}`}
+                className={`bg-white rounded-2xl border border-slate-200 shadow-md hover:shadow-lg transition-all overflow-hidden animate-in slide-in-from-bottom-6 duration-500 ${qIndex !== activeQIndex ? 'hidden' : ''}`}
+              >
+              <div className='bg-slate-900 px-6 py-4 flex items-center justify-between'>
+                <div className='flex items-center gap-4'>
+                  <div className='w-10 h-10 rounded-xl bg-pink-500 text-white text-base font-black flex items-center justify-center shadow-lg shadow-pink-500/20 transform -rotate-3'>
                     {qIndex + 1}
                   </div>
                   <div>
-                    <h3 className='font-black text-white uppercase tracking-[0.3em] text-[12px]'>
+                    <h3 className='font-black text-white uppercase tracking-[0.2em] text-[10px] md:text-[11px]'>
                       Question Unit
                     </h3>
-                    <div className='flex items-center gap-2 text-pink-400 text-[10px] font-bold'>
-                      <Clock size={12} /> {q.timer} Seconds
+                    <div className='flex items-center gap-1.5 text-pink-400 text-[9px] md:text-[10px] font-bold'>
+                      <Clock size={10} /> {q.timer} Seconds
                     </div>
                   </div>
                 </div>
                 <button
                   onClick={() => removeQuestion(qIndex)}
-                  className='p-3 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-2xl transition-all'
+                  className='p-2 text-slate-500 hover:text-red-400 hover:bg-white/5 rounded-xl transition-all'
                 >
-                  <Trash2 size={22} />
+                  <Trash2 size={18} />
                 </button>
               </div>
 
-              <div className='p-10 space-y-10'>
+              <div className='p-6 space-y-6'>
                 {/* Question Text */}
-                <div className='space-y-4'>
-                  <label className='text-[11px] font-black uppercase text-slate-400 flex items-center gap-2 ml-2 tracking-[0.2em]'>
-                    <HelpCircle size={14} className='text-pink-500' /> What's
+                <div className='space-y-3'>
+                  <label className='text-[10px] font-black uppercase text-slate-400 flex items-center gap-1.5 ml-1 tracking-[0.1em]'>
+                    <HelpCircle size={12} className='text-pink-500' /> What's
                     the question?
                   </label>
                   <textarea
@@ -277,10 +285,10 @@ export default function QuizEditorPage() {
                       handleQuestionChange(qIndex, "text", e.target.value)
                     }
                     placeholder='Contoh: Jika mas Nunu sayang Nurani, berapa cinta yang diberikan?'
-                    className='w-full px-8 py-6 bg-slate-50 border-2 border-slate-100 rounded-[2rem] outline-none focus:ring-8 focus:ring-pink-500/5 focus:border-pink-500 transition-all font-bold text-slate-800 text-xl placeholder:text-slate-300 resize-none shadow-inner'
+                    className='w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-pink-500/10 focus:border-pink-500 transition-all font-bold text-slate-800 text-sm md:text-base placeholder:text-slate-300 resize-none shadow-inner'
                   />
-                  <div className='flex items-center gap-4 px-4'>
-                    <label className='text-[10px] font-black text-slate-400 uppercase'>
+                  <div className='flex items-center gap-3 px-2'>
+                    <label className='text-[9px] md:text-[10px] font-black text-slate-400 uppercase'>
                       Set Timer:
                     </label>
                     <input
@@ -298,18 +306,18 @@ export default function QuizEditorPage() {
                       }
                       className='accent-pink-500 flex-1 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer'
                     />
-                    <span className='text-xs font-black text-pink-500 w-12'>
+                    <span className='text-[10px] md:text-xs font-black text-pink-500 w-8 md:w-10 text-right'>
                       {q.timer}s
                     </span>
                   </div>
                 </div>
 
                 {/* Options Grid */}
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5'>
                   {q.options.map((opt, oIndex) => (
                     <div key={oIndex} className='relative group'>
                       <div
-                        className={`absolute -left-2 -top-2 w-8 h-8 rounded-xl flex items-center justify-center font-black text-[10px] shadow-md z-10 transition-all ${
+                        className={`absolute -left-2 -top-2 w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center font-black text-[9px] md:text-[10px] shadow-sm z-10 transition-all ${
                           opt.correct
                             ? "bg-pink-500 text-white scale-110"
                             : "bg-slate-200 text-slate-500"
@@ -325,21 +333,21 @@ export default function QuizEditorPage() {
                             handleOptionChange(qIndex, oIndex, e.target.value)
                           }
                           placeholder={`Pilihan ${String.fromCharCode(65 + oIndex)}...`}
-                          className={`w-full pl-10 pr-14 py-5 bg-white border-2 rounded-[1.5rem] outline-none transition-all font-bold ${
+                          className={`w-full pl-10 pr-10 py-3 bg-white border-2 rounded-xl outline-none transition-all font-bold text-sm ${
                             opt.correct
-                              ? "border-pink-500 ring-4 ring-pink-500/5 bg-pink-50/5 text-pink-700"
+                              ? "border-pink-500 ring-2 ring-pink-500/10 bg-pink-50/10 text-pink-700"
                               : "border-slate-100 focus:border-slate-300"
                           }`}
                         />
                         <button
                           onClick={() => setCorrectOption(qIndex, oIndex)}
-                          className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${
+                          className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all ${
                             opt.correct
-                              ? "bg-pink-500 text-white shadow-lg shadow-pink-500/30"
+                              ? "bg-pink-500 text-white shadow-md shadow-pink-500/20"
                               : "bg-slate-100 text-slate-300 hover:text-pink-400 hover:bg-pink-50"
                           }`}
                         >
-                          <Check size={18} />
+                          <Check size={14} />
                         </button>
                       </div>
                     </div>
@@ -349,6 +357,30 @@ export default function QuizEditorPage() {
             </div>
           ))
         )}
+
+        {/* Bottom Navigation Kahoot Style */}
+        {questions.length > 0 && (
+          <div className="flex items-center justify-between bg-white px-6 py-4 rounded-2xl border border-slate-200 shadow-md">
+            <button 
+              onClick={() => setActiveQIndex(prev => Math.max(0, prev - 1))}
+              disabled={activeQIndex === 0}
+              className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <div className="font-black text-slate-400 tracking-widest text-sm uppercase">
+              Soal <span className="text-pink-500 text-lg mx-1">{activeQIndex + 1}</span> dari {questions.length}
+            </div>
+            <button 
+              onClick={() => setActiveQIndex(prev => Math.min(questions.length - 1, prev + 1))}
+              disabled={activeQIndex === questions.length - 1}
+              className="px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-pink-500/20"
+            >
+              Next
+            </button>
+          </div>
+        )}
+        </div>
       </div>
     </div>
   );

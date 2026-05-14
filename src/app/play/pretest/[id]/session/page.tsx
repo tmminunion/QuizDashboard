@@ -51,10 +51,30 @@ export default function PlaySessionPretestPage() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/PertanyaanPretest/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_PRETEST_QUESTION_API}/${id}`);
         if (res.ok) {
-          const data = await res.json();
-          let list = data?.value?.questions || [];
+          const resJson = await res.json();
+          console.log(`[Play] Raw Response:`, resJson);
+          
+          let list = [];
+          
+          // Gunakan logika pencarian yang sama tangguhnya dengan editor
+          const data = resJson.value || resJson;
+          if (Array.isArray(data)) {
+            list = data;
+          } else if (typeof data === 'object') {
+            const keys = Object.keys(data);
+            if (keys.length > 0) {
+              const firstKey = keys[0];
+              const dataAtKey = data[firstKey];
+              
+              if (dataAtKey && Array.isArray(dataAtKey.questions)) {
+                list = dataAtKey.questions;
+              } else if (Array.isArray(dataAtKey)) {
+                list = dataAtKey;
+              }
+            }
+          }
           
           if (list.length > 0) {
             list = shuffleArray(list);
@@ -67,13 +87,60 @@ export default function PlaySessionPretestPage() {
           }
         }
       } catch (err) {
-        console.error(err);
+        console.error(`[Play] Error:`, err);
       } finally {
         setLoading(false);
       }
     };
     fetchQuestions();
   }, [id]);
+
+  // Logic Submit Final Result
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [totalSeconds, setTotalSeconds] = useState(0);
+
+  useEffect(() => {
+    if (!loading && !isFinished) {
+      const timer = setInterval(() => setTotalSeconds(prev => prev + 1), 1000);
+      return () => clearInterval(timer);
+    }
+  }, [loading, isFinished]);
+
+  useEffect(() => {
+    if (isFinished && !isSubmitting) {
+      submitFinalResult();
+    }
+  }, [isFinished]);
+
+  const submitFinalResult = async () => {
+    setIsSubmitting(true);
+    const userNoreg = localStorage.getItem('user_noreg') || 'GUEST';
+    const userName = localStorage.getItem('user_nama') || 'GUEST';
+
+    const finalScore = Math.round((correctCount / questions.length) * 100);
+
+    const payload = {
+      user_noreg: userNoreg,
+      user_name: userName,
+      quiz_id: id,
+      test_type: 'pre', // Default pretest
+      score: finalScore,
+      duration: totalSeconds,
+    };
+
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_PRETEST_SUBMIT_API}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      console.log('Result submitted successfully!');
+    } catch (err) {
+      console.error('Failed to submit result:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     if (isFinished || loading || showFeedback || questions.length === 0) return;

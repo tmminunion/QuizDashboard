@@ -37,22 +37,37 @@ const idna = generateId();
       Slug: idna,
     };
 
+    const payload = {
+      title: formData.Title,
+      slug: idna,
+      description: formData.Description,
+      category: 'Pretest'
+    };
+
+    console.log(`[Add Pretest] Creating new pretest:`, payload);
     try {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_DATA_API + "/Pretest/" + idna,
+        `${process.env.NEXT_PUBLIC_PRETEST_LIST_API}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newPretest),
+          body: JSON.stringify(payload),
         },
       );
 
+      console.log(`[Add Pretest] Response Status: ${response.status}`);
       if (response.ok) {
-        router.push(`/dashboard/pretest/editor/${newPretest.id}`);
+        const result = await response.json();
+        console.log(`[Add Pretest] Success! Result:`, result);
+        // Backend mengembalikan result.id (InsertId dari MySQL)
+        router.push(`/dashboard/pretest/editor/${result.id}`);
       } else {
+        const errText = await response.text();
+        console.error(`[Add Pretest] Server Error: ${errText}`);
         throw new Error('Gagal simpan');
       }
     } catch (err) {
+      console.error(`[Add Pretest] Error:`, err);
       setError('Gagal buat Pretest baru sayang. 🥺');
       setLoading(false);
     }

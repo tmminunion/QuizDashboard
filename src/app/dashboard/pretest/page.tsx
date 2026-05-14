@@ -39,10 +39,10 @@ export default function PretestManagementPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Pretest`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_PRETEST_LIST_API}`);
       if (!response.ok) throw new Error('Gagal mengambil data dari API');
       const data = await response.json();
-      const list = data.value || [];
+      const list = data || []; // API QuizApi biasanya langsung array atau format tertentu
       setPretests(list);
     } catch (err) {
       console.error(err);
@@ -66,9 +66,8 @@ export default function PretestManagementPage() {
     setSuccessMsg('');
 
     try {
-      // Hapus Detail (Asumsi endpoint sama dengan quiz)
-      await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/PertanyaanPretest/${id}`, { method: 'DELETE' });
-      const res = await fetch(`${process.env.NEXT_PUBLIC_DATA_API}/Pretest/${id}`, { method: 'DELETE' });
+      // Hapus menggunakan API Pretest yang sinkron
+      const res = await fetch(`${process.env.NEXT_PUBLIC_PRETEST_LIST_API}/${id}`, { method: 'DELETE' });
 
       if (res.ok) {
         setSuccessMsg(`Pretest "${title}" berhasil dihapus, pangeranku! ✨`);
@@ -168,24 +167,24 @@ export default function PretestManagementPage() {
                         </div>
                         <div className="min-w-0">
                           <p className="font-bold text-slate-700 truncate group-hover:text-pink-500 transition-colors">
-                            {pt.Title || 'Tanpa Judul'}
+                            {pt.Title || (pt as any).title || 'Tanpa Judul'}
                           </p>
-                          <p className="text-[10px] text-slate-400 font-mono">ID: {pt.id}</p>
+                          <p className="text-[10px] text-slate-400 font-mono">ID: {pt.id || (pt as any).ID}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5 text-sm font-medium text-slate-600">
-                      {pt.UserID}
+                      {pt.UserID || (pt as any).userid || (pt as any).user_id || 'Admin'}
                     </td>
                     <td className="px-6 py-5">
                        <div className="flex items-center gap-2 text-slate-500 text-xs">
                           <Calendar size={14} />
-                          <span>{pt.DateStart || 'Belum diatur'}</span>
+                          <span>{pt.DateStart || (pt as any).date_start || (pt as any).Date_Start || 'Belum diatur'}</span>
                        </div>
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center justify-center gap-2">
-                        {deletingId === pt.id ? (
+                        {deletingId === (pt.id || (pt as any).ID) ? (
                           <div className="flex items-center gap-2 text-pink-500 text-xs font-bold">
                             <Loader2 className="animate-spin" size={16} />
                             <span>Deleting...</span>
@@ -193,14 +192,14 @@ export default function PretestManagementPage() {
                         ) : (
                           <>
                             <Link 
-                              href={`/dashboard/pretest/editor/${pt.id}`}
+                              href={`/dashboard/pretest/editor/${pt.id || (pt as any).ID}`}
                               className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all"
                             >
                               <Edit2 size={16} />
                             </Link>
                             
                             <Link 
-                              href={`/play/pretest/${pt.id}`}
+                              href={`/play/pretest/${pt.id || (pt as any).ID}`}
                               className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-600 hover:text-white transition-all"
                               title="Mulai Pretest"
                             >
@@ -210,7 +209,7 @@ export default function PretestManagementPage() {
                             <div className="h-4 w-[1px] bg-slate-200 mx-1"></div>
 
                             <button 
-                              onClick={() => handleDelete(pt.id, pt.Title)}
+                              onClick={() => handleDelete(pt.id || (pt as any).ID, pt.Title || (pt as any).title)}
                               className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all"
                             >
                               <Trash2 size={16} />

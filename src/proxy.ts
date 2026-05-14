@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
+  console.log(`[Proxy] Path: ${request.nextUrl.pathname}`);
   const userCookie = request.cookies.get('quizdash_user');
   const url = request.nextUrl.clone();
 
